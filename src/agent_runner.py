@@ -87,7 +87,7 @@ query_router_agent = Agent(
 # ------------------------------------------------------------------------------------------------
 class agents:
 
-    def __init__(self, workflow:str, group_id:str, user_id:str, query:str):
+    def __init__(self, workflow:str, group_id:str, user_id:str):
         self.workflow = workflow
         self.group_id = group_id
         self.user_id = user_id 

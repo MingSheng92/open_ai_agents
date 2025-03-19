@@ -8,10 +8,14 @@ from agents import (
     TResponseInputItem,
 )
 from schemas import MinLengthInputGuardrailOutput, ModerationInputGuardrailOutput, MessageOutput, RelevanceInputGuardrailOutput, OutputGuardrailOutput
+from openai import AsyncOpenAI
 
-
+### add this to env file later, or another file that holds constants
 GPT_MODEL = "gpt-4o-mini-2024-07-18"
 MOD_MODEL = "omni-moderation-2024-09-26"
+
+###  change this later 
+client = AsyncOpenAI()
 
 # ------------------------------------------------------------------------------------------------
 # Guardrail agents

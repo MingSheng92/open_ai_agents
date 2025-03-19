@@ -26,7 +26,11 @@ async def main():
     start_time = time.time()
     print("=" * 80)
 
+    # add try except logic later 
 
+    # initialize and start the agent loop
+    travel_assistant = agents(WORKFLOW_NAME, GROUP_ID, USER_ID)
+    travel_assistant.run(query)
 
     end_time = time.time()
     print("\n" + "=" * 80)
