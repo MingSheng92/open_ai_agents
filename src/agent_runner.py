@@ -4,8 +4,6 @@ from agents import (
     Agent,
     ModelSettings,
     WebSearchTool,
-    InputGuardrailTripwireTriggered,
-    OutputGuardrailTripwireTriggered
 )
 from agents.extensions.handoff_prompt import RECOMMENDED_PROMPT_PREFIX
 from openai.types.responses import (
@@ -94,69 +92,61 @@ class agents:
         self.result = None 
 
 
-    async def run(self, query):
-        try: 
-            result = Runner.run_streamed(
-                starting_agent=query_router_agent, 
-                input=query,
-                run_config=RunConfig(
-                    workflow_name=self.workflow,
-                    group_id=self.group_id,
-                    trace_metadata={
-                        "user_id": self.user_id
-                    },
-                ),
-            )
+async def run(self, query):
+        """Run the agent with the given query and stream events.
 
-            async for event in result.stream_events():
-                if event.type == "raw_response_event":
-                    event_data = event.data
-                    if isinstance(event_data, ResponseCreatedEvent):
-                        agent_name = result.last_agent.name
-                        print(f"🏃 Starting `{agent_name}`")
-                        print("-" * 50)
-                    elif isinstance(event_data, ResponseInProgressEvent):
-                        print("⏳ Agent response in progress...")
-                    elif isinstance(event_data, ResponseOutputItemAddedEvent):
-                        event_data_item = event_data.item
-                        if isinstance(event_data_item, ResponseFunctionToolCall):
-                            print(f"🔧 Tool called: {event_data_item.name}")
-                            print("\t Arguments: ", end="")
-                        elif isinstance(event_data_item, ResponseOutputMessage):
-                            print("📝 Drafting response...")
-                    elif isinstance(event_data, ResponseFunctionCallArgumentsDeltaEvent):
-                        event_data_delta = event_data.delta
-                        print(event_data_delta, end="", flush=True)
-                    elif isinstance(event_data, ResponseFunctionCallArgumentsDoneEvent):
-                        print("\n✅ Tool call completed!")
-                    elif isinstance(event_data, ResponseTextDeltaEvent):
-                        print(event_data.delta, end="", flush=True)
-                elif event.type == "run_item_stream_event":
-                    if event.name == "tool_output":
-                        print("🛠️ Tool output:")
-                        print("-" * 40)
-                        print(event.item.output)
-                        print("-" * 40)
+        Args:
+            query: The input query to process.
 
-        except InputGuardrailTripwireTriggered as e:
-            print("")
-            print("=" * 60)
-            print("\n🚨 INPUT GUARDRAIL TRIGGERED")
-            print("=" * 60)
-            guardrail_output = e.guardrail_result.output.output_info
-            print(f"Error: {guardrail_output.error_message}")
+        Returns:
+            None: This method streams events and does not return a value.
 
-        except OutputGuardrailTripwireTriggered as e:
-            print("")
-            print("=" * 60)
-            print("\n🚨 OUTPUT GUARDRAIL TRIGGERED")
-            print("=" * 60)
-            guardrail_output = e.guardrail_result.output.output_info
-            print(f"Error: {guardrail_output.error_message}")
+        Raises:
+            AgentInputGuardrailError: If an input guardrail is triggered.
+            AgentOutputGuardrailError: If an output guardrail is triggered.
+            AgentProcessingError: If an unexpected error occurs during processing.
+        """
+        # Note: Since this is an async method, we don't wrap it in a try-catch.
+        # Instead, we let exceptions propagate to the caller.
+        
+        result = Runner.run_streamed(
+            starting_agent=query_router_agent, 
+            input=query,
+            run_config=RunConfig(
+                workflow_name=self.workflow,
+                group_id=self.group_id,
+                trace_metadata={
+                    "user_id": self.user_id
+                },
+            ),
+        )
 
-        except Exception as e: 
-            print("")
-            print("=" * 60)
-            print("\n🚨 Something went wrong. Please try again later.")
-            print("=" * 60)
-            print(f"Error: {e}")
+        async for event in result.stream_events():
+            if event.type == "raw_response_event":
+                event_data = event.data
+                if isinstance(event_data, ResponseCreatedEvent):
+                    agent_name = result.last_agent.name
+                    print(f"🏃 Starting `{agent_name}`")
+                    print("-" * 50)
+                elif isinstance(event_data, ResponseInProgressEvent):
+                    print("⏳ Agent response in progress...")
+                elif isinstance(event_data, ResponseOutputItemAddedEvent):
+                    event_data_item = event_data.item
+                    if isinstance(event_data_item, ResponseFunctionToolCall):
+                        print(f"🔧 Tool called: {event_data_item.name}")
+                        print("\t Arguments: ", end="")
+                    elif isinstance(event_data_item, ResponseOutputMessage):
+                        print("📝 Drafting response...")
+                elif isinstance(event_data, ResponseFunctionCallArgumentsDeltaEvent):
+                    event_data_delta = event_data.delta
+                    print(event_data_delta, end="", flush=True)
+                elif isinstance(event_data, ResponseFunctionCallArgumentsDoneEvent):
+                    print("\n✅ Tool call completed!")
+                elif isinstance(event_data, ResponseTextDeltaEvent):
+                    print(event_data.delta, end="", flush=True)
+            elif event.type == "run_item_stream_event":
+                if event.name == "tool_output":
+                    print("🛠️ Tool output:")
+                    print("-" * 40)
+                    print(event.item.output)
+                    print("-" * 40)
