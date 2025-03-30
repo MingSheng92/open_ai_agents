@@ -1,4 +1,5 @@
 from agents import (
+    set_default_openai_key,
     Runner,
     RunConfig,
     Agent,
@@ -85,7 +86,8 @@ query_router_agent = Agent(
 # ------------------------------------------------------------------------------------------------
 class agents:
 
-    def __init__(self, workflow:str, group_id:str, user_id:str):
+    def __init__(self, api_key:str, workflow:str, group_id:str, user_id:str):
+        set_default_openai_key(api_key)
         self.workflow = workflow
         self.group_id = group_id
         self.user_id = user_id 

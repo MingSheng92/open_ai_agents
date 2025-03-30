@@ -1,3 +1,4 @@
+import os
 import sys
 import asyncio  
 import time
@@ -7,6 +8,7 @@ from agents import (
     InputGuardrailTripwireTriggered,
     OutputGuardrailTripwireTriggered
 )
+from dotenv import load_dotenv
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -17,11 +19,14 @@ async def main():
     WORKFLOW_NAME = "Travel assistant workflow"
     GROUP_ID = "travel-agent-conversation"
     USER_ID = "123"
+    API_KEY = os.enciron.get("OPEN_API_KEY", "")
+
+    load_dotenv()
 
     # ------------------------------------------------------------------------------------------------
     # Initialize OpenAI client
     # ------------------------------------------------------------------------------------------------
-
+    
     # client = AsyncOpenAI()
 
     # retrieve user query from command line arguments  
@@ -38,8 +43,8 @@ async def main():
 
     try:
         # initialize and start the agent loop
-        travel_assistant = agents(WORKFLOW_NAME, GROUP_ID, USER_ID)
-        travel_assistant.run(query)
+        travel_assistant = agents(API_KEY, WORKFLOW_NAME, GROUP_ID, USER_ID)
+        await travel_assistant.run(query)
     except InputGuardrailTripwireTriggered as e:
         # Wrap the guardrail exception in our custom exception
         guardrail_output = e.guardrail_result.output.output_info
