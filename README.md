@@ -5,7 +5,7 @@
 This project aims to learn about using the new openai sdk to build a multi-agent workflow to handle travel-related queries. The system routes user requests to specialised agents (with tools) based on query content and enforces input/output safety with guardrails.
 
 ## Architecture Diagram
-WIP
+![Diagram](architecture_diag.png)
 
 ## Features
 
