@@ -1,7 +1,5 @@
 # OpenAI Agents SDK Example: Multi-Agent Travel Query Workflow
 
-### WIP project, check back later
-
 This project aims to learn about using the new openai sdk to build a multi-agent workflow to handle travel-related queries. The system routes user requests to specialised agents (with tools) based on query content and enforces input/output safety with guardrails.
 
 ## Architecture Diagram
